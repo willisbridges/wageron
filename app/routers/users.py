@@ -34,12 +34,35 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
 @router.get("/users/{user_id}/", response_model=User)
 def read_user(user_id: int, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
     """
-    Get user info by user ID
+    Get user info by user ID / get_current_user needs definition
     """
     user = db.query(User).filter(User.id == user_id).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return user
 
+
+@router.put("/users/{user_id}/", response_model=User)
+def read_user(user_id: int, db: Session = Depends(get_db), current_user: UserBase = Depends(get_current_user)):
+    """
+    get user info by user ID
+    """
+    user = db.query(User).filter(User.id == user_id).first()
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    # check if updated username/email is unique
+    if (
+            (user.username != existing_user.username and db.query(User).filter(User.username == user.username).first())
+            or (user.email != existing_user.email and db.query(User).filter(User.email == user.email).first())
+    ):
+        raise HTTPException(status_code=400, detail="Username/Email already in use")
+
+    # Update User data
+    for key, value in user.dict().items():
+        setattr(existing_user, key, value)
+    db.commit()
+    db.refresh(existing_user)
+    return existing_user
 
 # Add more user-related routes here
