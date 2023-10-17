@@ -1,0 +1,7 @@
+fastapi==0.68.0
+uvicorn==0.15.0
+jinja2==3.0.3      # For using HTML templates
+sqlalchemy==1.4.22 # For database integration (if needed)
+alembic==1.6.5     # For database migrations (if needed)
+pydantic  # For data validation and models
+passlib # password hashing/management
