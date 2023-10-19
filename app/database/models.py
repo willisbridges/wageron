@@ -1,70 +1,28 @@
-from pydantic import BaseModel
+
+from sqlalchemy import Column, Integer, String, Float, ForeignKey
+from sqlalchemy.orm import relationship
+from database import Base
 
 
-class UserBase(BaseModel):
-    """
-    base Pydantic model for user data
-    """
-    username: str
-    email: str
+# User model
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    email = Column(String, unique=True, index=True)
+    password = Column(String)
+
+    bets = relationship("Bet", back_populates="user")
 
 
-class UserCreate(UserBase):
-    """
-    Pydantic model for user data during user registration
-    """
-    password: str
+# Bet model
+class Bet(Base):
+    __tablename__ = "bets"
 
+    id = Column(Integer, primary_key=True, index=True)
+    description = Column(String, index=True)
+    amount = Column(Float)
+    user_id = Column(Integer, ForeignKey("users.id"))
 
-class User(UserBase):
-    """
-    Pydantic model for returning user data in API responses
-    """
-    id: int
-
-    class Config:
-        orm_mode = True
-
-
-class BetBase(BaseModel):
-    """
-    base Pydantic model for bet data
-    """
-    description: str
-    wager_amount: float
-    outcome: str
-
-
-class BetCreate(BetBase):
-    """
-    Pydantic mode for creating new bets
-    """
-    pass
-
-
-class Bet(BetBase):
-    """
-    Pydantic model for returning bet data in API responses
-    """
-    id: int
-    is_resolved: bool
-    owner_id: int
-    winner_id: int = None  # Winner's user ID when the bet is resolved
-
-    class Config:
-        orm_mode = True
-
-
-class BetUpdate(BaseModel):
-    """
-    Pydantic model for updating bet data
-    """
-    is_resolved: bool
-    winner_id: int  # Winner's user ID when bet is resolved
-
-
-class BetResolve(BaseModel):
-    """
-    Pydantic model for resolving bets based on CoD API criteria.
-    """
-    resolved_by: str  # will need to explore the CoD API and see how to resolve bets / what data types
+    user = relationship("User", back_populates="bets")
