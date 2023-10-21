@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Optional
 
 
 class BetBase(BaseModel):
@@ -8,6 +9,11 @@ class BetBase(BaseModel):
 
 class BetCreate(BetBase):
     pass
+
+
+class BetUpdate(BaseModel):
+    description: Optional[str] = None
+    amount: Optional[float] = None
 
 
 class BetInDB(BetBase):
